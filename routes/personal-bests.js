@@ -23,7 +23,6 @@ router.get('/:id', ({ params }, res, next) => {
       return next(createError('Not found', 404));
     }
 
-
     return new PersonalBest(params);
   });
 });

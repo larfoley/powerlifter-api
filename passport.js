@@ -28,10 +28,22 @@ passport.use(new LocalStrategy(
     session: false
   },
   function(username, password, done) {
+    console.log('user login') 
     User.findOne({ username: username }, function (err, user) {
-      if (err) { return done(err); }
-      if (!user) { return done(null, false); }
-      if (!user.verifyPassword(password)) { return done(null, false); }
+      if (err) {
+        return done(err);
+      }
+
+      if (!user) {
+        console.log('no user');
+        
+        return done(null, false);
+      }
+
+      if (!user.verifyPassword(password)) {
+        return done(null, false);
+      }
+
       return done(null, user);
     });
   }

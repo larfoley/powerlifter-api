@@ -1,57 +1,57 @@
 const router = require('express').Router();
-const Goal = require('../models/Goal');
-const createError = require('../utils/create-error');
+const GoalService = require('../services/Goal');
 
-router.get('/', (req, res, next) => {
-  Goal.find({}, (err, goals) => {
-    if (err) {
-      return next(err);
-    }
+const goalService = new GoalService();
 
-    res.json({ goals });
-  });
+router.get('/', async (req, res, next) => {
+  try {
+    const goals = await goalService.findAll();
+
+    res.status(200).json({ goals })
+
+  } catch(error) {
+    next(error)
+  }
 });
 
-router.get('/:id', ({ params }, res, next) => {
+router.get('/:id', async ({ params }, res, next) => {
   const { id } = params;
 
-  Goal.findById(id, (err, goal) => {
-    if (!goal) {
-      return next(createError(404, 'Not found'))
-    }
+  try {
+    const goal = await goalService.findById(id);
 
-    res.json({ goal });
-  });
+    res.status(200).json({ goal })
+
+  } catch(error) {
+    next(error)
+  }
+
 });
 
 router.post('/', async (req, res, next) => {
   const goal = new Goal(req.body);
 
   try {
-    await goal.save();
-    res.json(goal);
-    next();
-  } catch (error) {
-    if (error.name === 'ValidationError') {
-      return res.status(422).json(error);
-    }
+    const goal = await goalService.create(goal);
 
-    next(error);
+    res.status(200).json({ goal })
+
+  } catch(error) {
+    next(error)
   }
 });
 
-router.put('/:id', async ({ params }, res, next) => {
-  Goal.findByIdAndUpdate(params.id, params, (error, goal) => {
-    if (error) {
-      if (error.name === 'ValidationError') {
-        res.state(422).json({ error });
-      }
+router.put('/:id', async (req, res, next) => {
+  const id = req.params.id;
+  
+  try {
+    const goal = await goalService.update(id);
 
-      return next(error);
-    }
+    res.status(200).json({ goal })
 
-    res.json({ goal });
-  });
+  } catch(error) {
+    next(error)
+  }
 });
 
 module.exports = router;

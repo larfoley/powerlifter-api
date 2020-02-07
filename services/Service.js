@@ -3,48 +3,55 @@ module.exports = class Service {
     this._Model = model
   }
 
+
   async findAll() {
     return new Promise((resolve, reject) => {
-      this._Model.find({}, (err, users) => {
+      this._Model.find({}, (err, model) => {
         if (err) reject(err);
-        resolve({ users });
+        resolve(model);
       });
     })
   }
 
-  async find(id) {
+  async find(model) {
     return new Promise((resolve, reject) => {
-      this._Model.findById(id, (err, user) => {
+      this._Model.findOne(model, (err, model) => {
         if (err) reject(err);
 
-        this._Model.getFriends(user, (err, friends) => {
-          if (err) reject(err);
+        resolve(model);
+      });
+    })
+  }
 
-          user.friends = friends;
-          resolve({ user });
-        });
+  async findById(id) {
+    return new Promise((resolve, reject) => {
+      this._Model.findById(id, (err, model) => {
+        if (err) reject(err);
+
+        resolve(model);
       });
     })
   }
 
   async delete(id) {
     return new Promise((resolve, reject) => {
-      this._Model.findByIdAndDelete(id, (err, user) => {
+      this._Model.findByIdAndDelete(id, (err, model) => {
         if (err) reject(err);
-        resolve({ user });
+        resolve(model);
+      });
+    })
+  }
+
+  async update(id) {
+    return new Promise((resolve, reject) => {
+      this._Model.findByIdAndUpdate(id, (err, model) => {
+        if (err) reject(err);
+        resolve(model);
       });
     })
   }
 
   async create(props) {
     return new this._Model(props).save();
-    // return new Promise((resolve, reject) => {
-    //     const model = new this._Model(props);
-    //
-    //     model.save((err, user) => {
-    //       if (err) reject(err);
-    //       resolve(user)
-    //     })
-    // });
   }
 }

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
-module.exports = mongoose.model('PersonalBest', new Schema({
+module.exports = mongoose.model('LiftRecord', new Schema({
   excercise: {
     type: String, required: true,
   },

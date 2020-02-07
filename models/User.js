@@ -1,14 +1,16 @@
 const mongoose = require('mongoose');
-const friends = require("mongoose-friends");
+const friends = require("mongoose-friends-plugin");
 const validate = require('mongoose-validator');
 const bcrypt = require('bcryptjs');
 
 const { Schema } = mongoose;
+
 const emailValidator = [
   validate({
     validator: 'isEmail',
   }),
 ];
+
 const schema = new Schema({
   username: {
     type: String,
@@ -17,7 +19,7 @@ const schema = new Schema({
   email: {
     type: String,
     required: true,
-    validate: emailValidator,
+    validate: emailValidator
   },
   password: {
     type: String,
@@ -31,6 +33,7 @@ schema.pre('save', async function(next) {
     const passwordHash = await bcrypt.hash(this.password, salt);
 
     this.password = passwordHash;
+
     next();
   } catch (error) {
     next(error);
@@ -38,7 +41,7 @@ schema.pre('save', async function(next) {
 });
 
 schema.methods.verifyPassword = function(newPassword) {
-    return bcrypt.compareSync(newPassword, this.password);
+    return bcrypt.compareSync(newPassword.trim(), this.password.trim());
 }
 
 schema.plugin(friends());

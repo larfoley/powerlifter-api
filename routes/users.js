@@ -1,39 +1,81 @@
 const router = require('express').Router();
 const UserService = require('../services/User');
-// const socketApi = require('../socketApi');
+const createError = require('http-errors');
+const User = require('../models/User');
 
 const userService = new UserService();
 
-
 router.get('/me', function(req, res) {
   const user = req.user;
-  user.id = user._id;
 
-  res.json({user});
+  res.status(200).json({ user });
 });
 
 router.get('/', async (req, res, next) => {
-
+  const searchTerm = req.query.search;
+  const currentUserId = req.user && req.user.id;
+  
   try {
-    const users = await userService.findAll();
+    const currenUserFriends = await User.getFriends(req.user);
+    const query = {
+      _id: { $ne: currentUserId }
+    }
 
-    res.json({ users }) && next();
+    if (searchTerm) {
+      query.username = { $regex: `.*${searchTerm}.*` }
+    }
+
+    let users = await User
+      .find(query)
+      .select('-password')
+      .lean()
+      .exec()
+    
+    for (const user of users) {
+      user.isFriend = false;
+      user.friendRequestRecieved = false;
+      user.friendRequestSent = false;
+
+      currenUserFriends.forEach(friend => {
+        
+        if (friend._id.equals(user._id)) {
+          if (friend.status === 'requested') {
+            user.friendRequestSent = true;
+
+          } else if (friend.status === 'pending') {
+            user.friendRequestRecieved = true;
+
+          } else if (friend.status === 'accepted') {
+            user.isFriend = true;
+
+          }
+        }
+      })
+    }
+
+    if (req.query.friendRequest) {      
+      users = users.filter(user => user.friendRequestSent || user.friendRequestRecieved)
+    } else if (req.query.isFriend) {
+      users = users.filter(user => user.isFriend)
+    }
+
+
+    res.status(200).json({ users });
 
   } catch (error) {
     next(error);
   }
 });
 
-
 router.get('/:id', async (req, res, next) => {
   try {
     const user = await userService.find(req.params.id);
 
     if (!user) {
-      res.status(404);
+      return next(createError(404));
     }
 
-    res.json({ user }) && next();
+    res.json({ user })
 
   } catch (error) {
     next(error);
@@ -44,34 +86,9 @@ router.delete('/:id', async (req, res, next) => {
   try {
     const user = await userService.delete(req.params.id);
 
-    res.json({ user }) && next();
+    res.status(200).json({ user });
 
   } catch (error) {
-    next(error);
-  }
-});
-
-router.post('/', async (req, res, next) => {
-  return res.status(422).json({
-    "errors": [
-      {
-        "detail": "not an email",
-        "source": {
-          "pointer": "data/attributes/email"
-        }
-      }
-    ]
-  });
-  try {
-    const user = await userService.create(req.body);
-    res.json({ user }) && next();
-    // const socketId = 1;
-    // io.to(`${socketId}`).emit('hey', 'I just met you');
-  } catch (error) {
-    if (error.name === 'ValidationError') {
-      return res.status(422).json(error);
-    }
-
     next(error);
   }
 });
@@ -83,15 +100,12 @@ router.post('/:id/request-friend', async (req, res, next) => {
   try {
     const response = await userService.sendFreindRequest(currentUserId, friendRequestId);
 
-    res.json(response) && next();
-    next();
+    res.status(200).json(response);
 
   } catch (error) {
     next(error);
   }
 });
-
-
 
 
 module.exports = router;
