@@ -15,6 +15,7 @@ const authRouter = require('./routes/auth');
 const friendRequestsRouter = require('./routes/friend-requests');
 const liftRecordsRouter = require('./routes/lift-records');
 const exercisesRouter = require('./routes/exercises');
+const notificationsRouter = require('./routes/notifications');
 
 mongoose.Promise = global.Promise;
 
@@ -44,6 +45,7 @@ app.use('/goals', protected, goalsRouter);
 app.use('/friendRequests', protected, friendRequestsRouter);
 app.use('/liftRecords', protected, liftRecordsRouter);
 app.use('/exercises', protected, exercisesRouter);
+app.use('/notifications', notificationsRouter);
 
 // Error handlers
 app.use(function(req, res, next) {
