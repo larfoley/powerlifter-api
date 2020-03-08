@@ -1,11 +1,11 @@
 const router = require('express').Router();
-const GoalModel = require('../models/Goal');
+const CommentModel = require('../models/Comment');
 
 router.get('/', async (req, res, next) => {
   try {
-    const goals = await GoalModel.find({});
+    const comments = await CommentModel.find({});
 
-    res.status(200).json({ goals })
+    res.status(200).json({ comments })
 
   } catch(error) {
     next(error)
@@ -16,9 +16,9 @@ router.get('/:id', async (req, res, next) => {
   const id = req.params.id;
 
   try {
-    const goal = await GoalModel.findById(id);
+    const comment = await CommentModel.findById(id);
 
-    res.status(200).json({ goal })
+    res.status(200).json({ comment })
 
   } catch(error) {
     next(error)
@@ -26,12 +26,12 @@ router.get('/:id', async (req, res, next) => {
 });
 
 router.post('/', async (req, res, next) => {
-  const goal = new GoalModel(req.body.goal);
+  const comment = new CommentModel(req.body.comment);
 
   try {
-    await goal.save();
+    await comment.save();
 
-    res.status(200).json({ goal })
+    res.status(200).json({ comment })
 
   } catch(error) {
     next(error)
@@ -40,12 +40,12 @@ router.post('/', async (req, res, next) => {
 
 router.put('/:id', async (req, res, next) => {
   const id = req.params.id;
-  const update = req.body.goal;
+  const update = req.body.comment;
 
   try {
-    const goal = await GoalModel.findOneAndUpdate(id, update);
+    const comment = await CommentModel.findOneAndUpdate(id, update);
 
-    res.status(200).json({ goal })
+    res.status(200).json({ comment })
 
   } catch(error) {
     next(error)

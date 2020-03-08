@@ -1,12 +1,6 @@
 const router = require('express').Router();
 const PersonalBest = require('../models/PersonalBest');
-
-const createError = () => {
-  const error = new Error();
-  error.message = 'Not Found';
-  error.status = 404;
-  return error;
-};
+const createError = require('http-errors');
 
 router.get('/', (req, res, next) => {
   PersonalBest.find({}, (err, users) => {
@@ -20,7 +14,7 @@ router.get('/:id', ({ params }, res, next) => {
 
   PersonalBest.findById(id, (err, pb) => {
     if (!pb) {
-      return next(createError('Not found', 404));
+      return next(createError(404));
     }
 
     return new PersonalBest(params);

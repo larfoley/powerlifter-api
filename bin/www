@@ -4,12 +4,12 @@
  * Module dependencies.
  */
 
-var app = require('../app');
+var app = require('../app').app;
 var debug = require('debug')('powerlifting-app-api:server');
 var http = require('http');
 
-var socketApi = require('../socketApi');
-var io = socketApi.io;
+// var socketApi = require('../socketApi');
+// var io = socketApi.io;
 
 
 /**
@@ -23,8 +23,10 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
-io.attach(server);
+// var server = http.createServer(app);
+// io.attach(server);
+
+var server = require('../app').server;
 /**
  * Listen on provided port, on all network interfaces.
  */

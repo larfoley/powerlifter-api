@@ -4,12 +4,29 @@ const NotificationModel = require('../models/Notification');
 
 router.get('/', async (req, res, next) => {
   try {
-    const notifications = await NotificationModel.find({});
+    const notifications = await NotificationModel.find({
+      for: req.user._id
+    });
 
     res.status(200).json({ notifications })
 
   } catch(error) {
     next(error)
+  }
+});
+
+router.get('/:id', async (req, res, next) => {
+  const id = req.params.id;
+
+  try {
+    const notification = await NotificationModel.findById(id);
+
+    console.log(notification);
+
+    res.status(200).json({ notification });
+
+  } catch(error) {
+    next(error);
   }
 });
 
@@ -26,9 +43,15 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.put('/', async (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
+  const id = req.params.id;
+  const update = req.body.notification;
+
   try {
-    await notification.findOneAndUpdate(req.body.notification);
+    const notification = await NotificationModel.findByIdAndUpdate(id, update);
+
+    console.log('update', update);
+    console.log('new notification', notification);
 
     res.status(200).json({ notification });
 

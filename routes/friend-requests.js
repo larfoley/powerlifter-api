@@ -11,14 +11,12 @@ router.post('/', async (req, res, next) => {
 
     } else {
       await UserModel.removeFriend(from, to);
-
     }
-    
+
     res.status(200).json({ friendRequest });
 
   } catch(error) {
     next(error);
-
   }
 });
 
