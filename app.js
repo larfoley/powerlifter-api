@@ -7,8 +7,8 @@ const helmet = require('helmet');
 const passport = require('passport');
 const cors = require('cors');
 const createError = require('http-errors');
+const queryParser = require('express-query-int');
 const User = require('./models/User');
-
 
 // Routes
 const usersRouter = require('./routes/users');
@@ -20,8 +20,15 @@ const exercisesRouter = require('./routes/exercises');
 const notificationsRouter = require('./routes/notifications');
 const postsRouter = require('./routes/posts');
 const commentsRouter = require('./routes/comments');
+const friendsRouter = require('./routes/friends');
+const likesRouter = require('./routes/likes');
+const uploadRouter = require('./routes/upload');
+const currentProgramRouter = require('./routes/current-program');
+const workoutProgramsRouter = require('./routes/workout-programs');
+const workoutProgramTemplatesRouter = require('./routes/workout-program-templates');
 
 mongoose.Promise = global.Promise;
+mongoose.set('useFindAndModify', false);
 
 const app = express();
 const server = require('http').Server(app);
@@ -38,14 +45,18 @@ try {
 }
 
 connection.on('error', console.error.bind(console, 'Error connecting to the database'));
-connection.once('open', () => { console.log('Connected to database'); });
+connection.once('open', () => {
+  console.log('Connected to database');
+});
 
 // Middleware
 app.use(helmet());
 app.use(logger('dev'));
 app.use(express.json());
+app.use(queryParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
+
 io.use(jwtAuth.authenticate({
   secret: 'theowlsarenotwhattheyseem',
 }, function(payload, done) {
@@ -80,42 +91,57 @@ app.use('/liftRecords', protected, liftRecordsRouter);
 app.use('/exercises', protected, exercisesRouter);
 app.use('/notifications',protected, notificationsRouter);
 app.use('/posts', protected, postsRouter);
-app.use('/comments',protected, commentsRouter);
+app.use('/comments', protected, commentsRouter);
+app.use('/friends', protected, friendsRouter);
+app.use('/likes', protected, likesRouter);
+app.use('/upload', protected, uploadRouter);
+app.use('/currentPrograms', protected, currentProgramRouter);
+app.use('/workoutPrograms', protected, workoutProgramsRouter);
+app.use('/workoutProgramTemplates', protected, workoutProgramTemplatesRouter);
 
 // Error handlers
 app.use(function(req, res, next) {
   next(createError(404))
 });
 
-app.use(function(err, req, res, next) {
-  const status = err.status || 500;
-  const error = req.app.get('env') === 'development' ? err : {};
+app.use(function(req, res, next) {
+  next(createError(404))
+});
 
+app.use(function(error, req, res, next) {
+  let status = error.status || 500;
+
+  const response = {
+    errors: []
+  }
+
+  // Handle validation errors
   if (error.name === 'ValidationError') {
 
-    const errors = [];
+    status = 422;
 
     for (key in error.errors) {
-      errors.push({
+      response.errors.push({
         status,
-        source: { pointer: `"/data/attributes/${key}` },
+        source: { pointer: `data/attributes/${key}` },
         detail: error.errors[key].message
       })
     }
 
-    res.status(422).json({ errors });
-
-  } else {
-    res.status(status).json({
-      errors: [
-        {
-          status,
-          source: { pointer: "" },
-          detail: error.message
-        }
-      ]
-    });
+  } else if (status == 422) {
+    // Handle validation errors that are not asociated with any specific attribute
+    response.errors.push({
+      status,
+      source: { pointer: `data` },
+      detail: error.message
+    })
   }
+
+  if (req.app.get('env') === 'development') {
+    console.error("Error", error);
+  }
+
+  res.status(status).json(response);
 });
 
 module.exports = { app: app, server: server };

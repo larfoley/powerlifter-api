@@ -1,9 +1,26 @@
 const router = require('express').Router();
 const GoalModel = require('../models/Goal');
+const LiftRecordModel = require('../models/LiftRecord');
+const createError = require('http-errors');
 
 router.get('/', async (req, res, next) => {
+  const exercise = req.query.exercise;
+  const query = {};
+
+  if (exercise) {
+    query['exercise.name'] = exercise;
+  }
+
   try {
-    const goals = await GoalModel.find({});
+
+    const goals = await GoalModel.find(query);
+
+    // get all records where exercise is x and reps is y
+    // LiftRecords.find({ exercise: 10 }) // 'this' now refers to the Member class
+    //  .sort('-score')
+    //  .exec(callback);
+
+    // console.log(GoalModel);
 
     res.status(200).json({ goals })
 
@@ -18,6 +35,7 @@ router.get('/:id', async (req, res, next) => {
   try {
     const goal = await GoalModel.findById(id);
 
+
     res.status(200).json({ goal })
 
   } catch(error) {
@@ -29,6 +47,14 @@ router.post('/', async (req, res, next) => {
   const goal = new GoalModel(req.body.goal);
 
   try {
+    const { reps, exercise, weight } = req.body.goal;
+
+    const duplicateGoal = await GoalModel.findOne({ weight, reps, 'exercise.name': exercise.name });
+
+    if (duplicateGoal) {
+      return next(createError(422, "You have already created that goal"))
+    }
+
     await goal.save();
 
     res.status(200).json({ goal })
@@ -43,9 +69,53 @@ router.put('/:id', async (req, res, next) => {
   const update = req.body.goal;
 
   try {
-    const goal = await GoalModel.findOneAndUpdate(id, update);
+    if (update.isCompleted) {
+      update.percentageCompleted = 100;
 
-    res.status(200).json({ goal })
+    } else {
+      const percentageCompleted = await GoalModel.getPercentageCompleted(update);
+
+      update.percentageCompleted = percentageCompleted;
+
+      if (percentageCompleted >= 100) {
+        update.isCompleted = true;
+      }
+    }
+
+    // const goal =
+    const goal = await GoalModel.findById(id);
+
+    // Check if goal is being updated to completed
+    if (update.isCompleted && !goal.isCompleted) {
+      console.log("marking complete");
+
+        // const liftRecord = new LiftRecordModel({
+        //   reps: goal.reps,
+        //   weightLifted: goal.weight,
+        //   'exercise.name': goal.exercise.name,
+        //   date: new Date(),
+        // })
+        //
+        // await liftRecord.save();
+    }
+
+    const updatedGoal = await GoalModel.findByIdAndUpdate(id, update, { new: true });
+
+    res.status(200).json({ goal: updatedGoal })
+
+  } catch(error) {
+    next(error)
+  }
+});
+
+
+router.delete('/:id', async (req, res, next) => {
+  const id = req.params.id;
+
+  try {
+    const goal = await GoalModel.findOneAndDelete(id);
+
+    res.status(200).json({})
 
   } catch(error) {
     next(error)

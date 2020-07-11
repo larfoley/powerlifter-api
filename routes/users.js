@@ -1,12 +1,10 @@
 const router = require('express').Router();
-const UserService = require('../services/User');
 const createError = require('http-errors');
-const User = require('../models/User');
+const UserModel = require('../models/User');
+const s3 = require('../services/s3')
 
-const userService = new UserService();
-
-router.get('/me', function(req, res) {
-  const user = req.user;
+router.get('/me', async (req, res) => {
+  const user = await UserModel.findById(req.user.id).populate('workoutHistory');
 
   res.status(200).json({ user });
 });
@@ -14,51 +12,27 @@ router.get('/me', function(req, res) {
 router.get('/', async (req, res, next) => {
   const searchTerm = req.query.search;
   const currentUserId = req.user && req.user.id;
-  
+  const friendShipRequested = req.query.friendShipRequested;
+
   try {
-    const currenUserFriends = await User.getFriends(req.user);
+    // Get all users, excluding the current user
+    const currentUserFriends = await UserModel.getFriends(req.user);
+
     const query = {
-      _id: { $ne: currentUserId }
+      _id: { $ne: req.user._id }
     }
 
     if (searchTerm) {
       query.username = { $regex: `.*${searchTerm}.*` }
     }
 
-    let users = await User
-      .find(query)
+    let users = await UserModel.find(query)
       .select('-password')
       .lean()
-      .exec()
-    
+
     for (const user of users) {
-      user.isFriend = false;
-      user.friendRequestRecieved = false;
-      user.friendRequestSent = false;
-
-      currenUserFriends.forEach(friend => {
-        
-        if (friend._id.equals(user._id)) {
-          if (friend.status === 'requested') {
-            user.friendRequestSent = true;
-
-          } else if (friend.status === 'pending') {
-            user.friendRequestRecieved = true;
-
-          } else if (friend.status === 'accepted') {
-            user.isFriend = true;
-
-          }
-        }
-      })
+      UserModel.addFriendshipMetaData(currentUserFriends, user);
     }
-
-    if (req.query.friendRequest) {      
-      users = users.filter(user => user.friendRequestSent || user.friendRequestRecieved)
-    } else if (req.query.isFriend) {
-      users = users.filter(user => user.isFriend)
-    }
-
 
     res.status(200).json({ users });
 
@@ -69,7 +43,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const user = await userService.find(req.params.id);
+    const user = await UserModel.findById(req.params.id);
 
     if (!user) {
       return next(createError(404));
@@ -82,11 +56,38 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
+router.put('/:id', async (req, res, next) => {
+  const update = req.body.user;
+
+  try {
+    const user = await UserModel.findById(req.params.id);
+    const oldProfilePic = user.profilePic;
+    const newProfilePic = update.profilePic;
+
+
+    if (oldProfilePic != newProfilePic && newProfilePic.trim() != "") {
+
+      const data = await s3.deleteObject({
+        Key: oldProfilePic
+      });
+
+      console.log({ data });
+
+      const updatedUser = await UserModel.findByIdAndUpdate(req.params.id, req.body.user);
+    }
+
+    res.json({ user })
+
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.delete('/:id', async (req, res, next) => {
   try {
-    const user = await userService.delete(req.params.id);
+    await UserModel.findByIdAndDelete(req.user._id);
 
-    res.status(200).json({ user });
+    res.status(200).json({ });
 
   } catch (error) {
     next(error);

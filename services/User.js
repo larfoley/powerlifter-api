@@ -62,7 +62,7 @@ module.exports = class UserService extends Service {
 
   async sendFreindRequest(from, to) {
     // TODO: Check if user tries to send request to himself
-    
+
     return new Promise(function(resolve, reject) {
       if (from === to) {
         reject(createError(422, 'You cannot send a friend request to yourself'))

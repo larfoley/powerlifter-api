@@ -21,8 +21,6 @@ router.get('/:id', async (req, res, next) => {
   try {
     const notification = await NotificationModel.findById(id);
 
-    console.log(notification);
-
     res.status(200).json({ notification });
 
   } catch(error) {
@@ -49,9 +47,6 @@ router.put('/:id', async (req, res, next) => {
 
   try {
     const notification = await NotificationModel.findByIdAndUpdate(id, update);
-
-    console.log('update', update);
-    console.log('new notification', notification);
 
     res.status(200).json({ notification });
 

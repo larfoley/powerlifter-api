@@ -1,9 +1,18 @@
 const mongoose = require('mongoose');
-
 const { Schema } = mongoose;
 
-module.exports = mongoose.model('Exercise', new Schema({
+const ExerciseSchema = new Schema({
   name: {
     type: String, required: true,
   },
-}));
+  category: {
+    type: String,
+    enum: ['barbell'],
+    required: true,
+    default: 'barbell'
+  },
+});
+
+const ExerciseModel = mongoose.model('Exercise', ExerciseSchema);
+
+module.exports = { ExerciseModel, ExerciseSchema }

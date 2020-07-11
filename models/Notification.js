@@ -4,11 +4,17 @@ const { Schema } = mongoose;
 
 module.exports = mongoose.model('Notification', new Schema({
   for: [mongoose.Schema.Types.ObjectId],
+  from: {
+    type: String, required: true,
+  },
   text: {
     type: String, required: true,
   },
   link: {
-    type: String, required: false,
+    type: new Schema({
+      route: { type: String },
+      model: { type: String }
+    }),
   },
   isUnread: {
     type: Boolean, required: true, default: true
@@ -16,4 +22,6 @@ module.exports = mongoose.model('Notification', new Schema({
   new: {
     type: Boolean, required: true, default: true
   },
+}, {
+  timestamps: true
 }));

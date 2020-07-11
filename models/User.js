@@ -11,7 +11,7 @@ const emailValidator = [
   }),
 ];
 
-const schema = new Schema({
+const userSchema = new Schema({
   username: {
     type: String,
     required: true
@@ -23,16 +23,46 @@ const schema = new Schema({
   },
   password: {
     type: String,
-    required: true
-  }
+    required: true,
+    select: false
+  },
+  isOnline: {
+    type: Boolean,
+    required: false
+  },
+  friendRequest: {
+    type: String,
+    required: false
+  },
+  friendRequestRecieved: {
+    type: Boolean,
+    required: false
+  },
+  friendRequestSent: {
+    type: Boolean,
+    required: false
+  },
+  isFriend: {
+    type: Boolean,
+    required: false
+  },
+  profilePic: {
+    type: String,
+    default: ''
+  },
+  posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+  workoutProgramTemplates: [{ type: Schema.Types.ObjectId, ref: 'WorkoutProgramTemplate' }],
+  workoutHistory: [{ type: Schema.Types.ObjectId, ref: 'WorkoutProgram' }],
 });
 
-schema.pre('save', async function(next) {
+userSchema.pre('save', async function(next) {
   try {
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(this.password, salt);
+    if (this.isNew) {
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(this.password, salt);
 
-    this.password = passwordHash;
+      this.password = passwordHash;
+    }
 
     next();
   } catch (error) {
@@ -40,10 +70,42 @@ schema.pre('save', async function(next) {
   }
 });
 
-schema.methods.verifyPassword = function(newPassword) {
+userSchema.methods.verifyPassword = function(newPassword) {
     return bcrypt.compareSync(newPassword.trim(), this.password.trim());
 }
 
-schema.plugin(friends());
+userSchema.statics.addFriendshipMetaData = function(currentUserFriends, user) {
+  user.isFriend = false;
+  user.friendRequestRecieved = false;
+  user.friendRequestSent = false;
+  user.friendRequest = null;
 
-module.exports = mongoose.model('User', schema);
+  currentUserFriends.forEach(friend => {
+
+    if (friend._id.equals(user._id)) {
+
+      const friendStatus = friend.status;
+
+      friend.id = friend._id;
+      user.friendRequest = friend._id;
+
+      if (friendStatus === 'requested') {
+        user.friendRequestSent = true;
+
+      } else if (friendStatus === 'pending') {
+        user.friendRequestRecieved = true;
+
+      } else if (friendStatus === 'accepted') {
+        user.isFriend = true;
+      }
+    }
+  })
+
+
+  return user;
+}
+
+
+userSchema.plugin(friends());
+
+module.exports = mongoose.model('User', userSchema);
