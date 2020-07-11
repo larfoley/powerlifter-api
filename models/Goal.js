@@ -4,6 +4,10 @@ const LiftRecordModel = require('./LiftRecord');
 const { Schema } = mongoose;
 
 const GoalSchema = new Schema({
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
   exercise: {
     type: ExerciseSchema, required: true,
   },

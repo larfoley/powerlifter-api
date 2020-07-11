@@ -5,7 +5,9 @@ const createError = require('http-errors');
 
 router.get('/', async (req, res, next) => {
   const exercise = req.query.exercise;
-  const query = {};
+  const query = {
+    user: req.user._id
+  };
 
   if (exercise) {
     query['exercise.name'] = exercise;
@@ -44,17 +46,12 @@ router.get('/:id', async (req, res, next) => {
 });
 
 router.post('/', async (req, res, next) => {
-  const goal = new GoalModel(req.body.goal);
+  const goal = new GoalModel({
+    ...req.body.goal,
+    user: req.user._id
+  });
 
   try {
-    const { reps, exercise, weight } = req.body.goal;
-
-    const duplicateGoal = await GoalModel.findOne({ weight, reps, 'exercise.name': exercise.name });
-
-    if (duplicateGoal) {
-      return next(createError(422, "You have already created that goal"))
-    }
-
     await goal.save();
 
     res.status(200).json({ goal })
@@ -89,14 +86,14 @@ router.put('/:id', async (req, res, next) => {
     if (update.isCompleted && !goal.isCompleted) {
       console.log("marking complete");
 
-        // const liftRecord = new LiftRecordModel({
-        //   reps: goal.reps,
-        //   weightLifted: goal.weight,
-        //   'exercise.name': goal.exercise.name,
-        //   date: new Date(),
-        // })
-        //
-        // await liftRecord.save();
+        const liftRecord = new LiftRecordModel({
+          reps: goal.reps,
+          weightLifted: goal.weight,
+          'exercise.name': goal.exercise.name,
+          date: new Date(),
+        })
+
+        await liftRecord.save();
     }
 
     const updatedGoal = await GoalModel.findByIdAndUpdate(id, update, { new: true });

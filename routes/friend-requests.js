@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const UserModel = require('../models/User');
+const NotificationModel = require('../models/Notification');
 
 //Get all friend requests
 router.get('/', async (req, res, next) => {
@@ -7,7 +8,6 @@ router.get('/', async (req, res, next) => {
 
   try {
     const friends = await UserModel.getFriends(user)
-
 
     const friendRequests = friends
       .filter(fr => fr.status != 'accepted')
@@ -28,10 +28,11 @@ router.get('/', async (req, res, next) => {
 
 // Create a friend request
 router.post('/', async (req, res, next) => {
+  const friendId = req.body.friendRequest.friend;
 
   try {
     const friendRequest = await UserModel.requestFriend(req.user, req.body.friendRequest.friend);
-    const friend = await UserModel.findById(req.body.friendRequest.friend._id);
+    const friend = await UserModel.findById(friendId);
     const { added, status, _id } = friendRequest.friender;
 
     const response = {
@@ -42,6 +43,19 @@ router.post('/', async (req, res, next) => {
         friend
       }
     }
+
+    const notification = new NotificationModel({
+      for: friendId,
+      from: req.user.username,
+      text: `sent you a friend request`,
+      link: {
+        route: 'my-network.friend-requests',
+      }
+    })
+
+    await notification.save();
+
+    res.io.emit(`notification/${friendId}`, notification);
 
     res.status(200).json(response);
 

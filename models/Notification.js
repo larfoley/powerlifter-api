@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 module.exports = mongoose.model('Notification', new Schema({
-  for: [mongoose.Schema.Types.ObjectId],
+  for: {
+    type: Schema.Types.ObjectId, required: true,
+  },
   from: {
     type: String, required: true,
   },
