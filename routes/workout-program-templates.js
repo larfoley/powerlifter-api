@@ -6,7 +6,6 @@ router.get('/', async (req, res, next) => {
   const workoutProgramTemplateIds = req.query.ids ? req.query.ids : [];
   const query = {};
   const author = req.query.author;
-  console.log(req.query);
 
   if (author) {
     query.author = author;

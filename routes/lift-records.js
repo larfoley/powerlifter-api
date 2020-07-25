@@ -1,8 +1,7 @@
 require('dotenv').config();
 const router = require('express').Router();
-const aws = require('aws-sdk')
-const multer = require('multer')
-const multerS3 = require('multer-s3')
+const s3 = require('../services/s3');
+
 const LiftRecordModel = require('../models/LiftRecord');
 
 router.get('/', async (req, res, next) => {
@@ -29,33 +28,6 @@ router.post('/', async (req, res, next) => {
 
     await LiftRecordModel.updatePersonalBests(liftRecord.exercise.name, liftRecord.reps);
 
-    const query = {
-      'exercise.name': liftRecord.exercise.name,
-      isCompleted: false,
-      hasPreviouslyAchievedGoal: false,
-      reps: liftRecord.reps,
-      weight: { $lte: liftRecord.weightLifted }
-    }
-
-    const query2 = {
-      'exercise.name': liftRecord.exercise.name,
-      isCompleted: false,
-      hasPreviouslyAchievedGoal: true,
-      reps: liftRecord.reps,
-      weight: { $lte: liftRecord.weightLifted },
-      createdAt: { $gte: liftRecord.createdAt }
-    }
-
-    // await GoalModel.updateMany(query, {
-    //   isCompleted: true,
-    //   percentageCompleted: 100
-    // })
-    //
-    // await GoalModel.updateMany(query2, {
-    //   isCompleted: true,
-    //   percentageCompleted: 100
-    // })
-
     res.status(200).json({ liftRecord })
 
   } catch(error) {
@@ -81,7 +53,6 @@ router.get('/:id', async (req, res, next) => {
 
   try {
     const liftRecord = await LiftRecordModel.findById(id);
-
 
     res.status(200).json({ liftRecord })
 
@@ -112,7 +83,14 @@ router.delete('/:id', async (req, res, next) => {
   const id = req.params.id;
 
   try {
-    const goal = await LiftRecordModel.findOneAndDelete(id);
+
+    const liftRecord = await LiftRecordModel.findOneAndDelete(id);
+
+    if (liftRecord.videoURL) {
+      await s3.deleteObject({
+        Key: post.media.url
+      });
+    }
 
     res.status(200).json({})
 

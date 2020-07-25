@@ -43,7 +43,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const user = await UserModel.findById(req.params.id);
+    const user = await UserModel.findById(req.user.id).populate('workoutHistory');
 
     if (!user) {
       return next(createError(404));
@@ -60,10 +60,9 @@ router.put('/:id', async (req, res, next) => {
   const update = req.body.user;
 
   try {
-    const user = await UserModel.findById(req.params.id);
+    const user = await UserModel.findById(req.user.id).populate('workoutHistory');
     const oldProfilePic = user.profilePic;
     const newProfilePic = update.profilePic;
-
 
     if (oldProfilePic != newProfilePic && newProfilePic.trim() != "") {
 
@@ -71,12 +70,12 @@ router.put('/:id', async (req, res, next) => {
         Key: oldProfilePic
       });
 
-      console.log({ data });
-
-      const updatedUser = await UserModel.findByIdAndUpdate(req.params.id, req.body.user);
+      await UserModel.findByIdAndUpdate(req.params.id, req.body.user);
     }
 
-    res.json({ user })
+    const updatedUser = await UserModel.findById(req.user.id).populate('workoutHistory')
+
+    res.json({ user: updatedUser })
 
   } catch (error) {
     next(error);

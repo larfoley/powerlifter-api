@@ -46,6 +46,9 @@ const postSchema = new Schema({
   author: {
     type: authorSchema
   },
+  actionText: {
+    type: String,
+  },
   comments: [{
     type: Schema.Types.ObjectId,
     ref: 'Comment'

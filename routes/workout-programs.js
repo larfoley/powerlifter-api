@@ -87,7 +87,7 @@ router.get('/:id', async (req, res, next) => {
 
 router.put('/:id', async (req, res, next) => {
   const update = req.body.workoutProgram;
-  
+
   try {
     const workoutProgram = await WorkoutProgramModel.findByIdAndUpdate(req.params.id, update, { new: true });
 

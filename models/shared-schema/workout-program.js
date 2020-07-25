@@ -15,10 +15,12 @@ module.exports = new Schema({
       workouts: [new Schema({
         week: { type: Number},
         weekDay: { type: Number},
+        day: { type: Number},
         completed: { type: Boolean },
         exercises: {
           type: [new Schema({
             exercise: { type: String },
+            note: { type: String },
             sets: {
               type: [new Schema({
                 order: { type: Number },

@@ -2,27 +2,31 @@ const router = require('express').Router();
 const GoalModel = require('../models/Goal');
 const LiftRecordModel = require('../models/LiftRecord');
 const createError = require('http-errors');
+const requestQuery = require('../middlewares/request-query');
 
-router.get('/', async (req, res, next) => {
-  const exercise = req.query.exercise;
-  const query = {
-    user: req.user._id
-  };
+router.get('/', requestQuery({
+  allowedQueryParams: [
+    'isCompleted',
+    'exercise',
+    'reps',
+    'weight',
+    'after'
+  ]
+}), async (req, res, next) => {
+  const query = req.requestQuery;
 
-  if (exercise) {
-    query['exercise.name'] = exercise;
+  if (query.exercise) {
+    query['exercise.name'] = query.exercise;
+    delete query.exercise
+  }
+
+  if (query.after) {
+    console.log('after', query.after);
+    query['date'] = {"$gte": query.after }
   }
 
   try {
-
     const goals = await GoalModel.find(query);
-
-    // get all records where exercise is x and reps is y
-    // LiftRecords.find({ exercise: 10 }) // 'this' now refers to the Member class
-    //  .sort('-score')
-    //  .exec(callback);
-
-    // console.log(GoalModel);
 
     res.status(200).json({ goals })
 
@@ -68,32 +72,6 @@ router.put('/:id', async (req, res, next) => {
   try {
     if (update.isCompleted) {
       update.percentageCompleted = 100;
-
-    } else {
-      const percentageCompleted = await GoalModel.getPercentageCompleted(update);
-
-      update.percentageCompleted = percentageCompleted;
-
-      if (percentageCompleted >= 100) {
-        update.isCompleted = true;
-      }
-    }
-
-    // const goal =
-    const goal = await GoalModel.findById(id);
-
-    // Check if goal is being updated to completed
-    if (update.isCompleted && !goal.isCompleted) {
-      console.log("marking complete");
-
-        const liftRecord = new LiftRecordModel({
-          reps: goal.reps,
-          weightLifted: goal.weight,
-          'exercise.name': goal.exercise.name,
-          date: new Date(),
-        })
-
-        await liftRecord.save();
     }
 
     const updatedGoal = await GoalModel.findByIdAndUpdate(id, update, { new: true });

@@ -12,7 +12,7 @@ const LiftRecordSchema = new Schema({
   reps: {
     type: Number, required: true,
   },
-  videoData: {
+  videoURL: {
     type: String, required: false,
   },
   isPersonalBest: {
@@ -24,39 +24,6 @@ const LiftRecordSchema = new Schema({
 }, {
   timestamps: true
 })
-//
-// LiftRecordSchema.post('save', async function() {
-//   // Check if newly added record has completed any goals
-//
-//   const query = {
-//     'exercise.name': this.exercise.name,
-//     isCompleted: false,
-//     hasPreviouslyAchievedGoal: false,
-//     reps: this.reps,
-//     weight: { $lte: this.weightLifted }
-//   }
-//
-//   const query2 = {
-//     'exercise.name': this.exercise.name,
-//     isCompleted: false,
-//     hasPreviouslyAchievedGoal: true,
-//     reps: this.reps,
-//     weight: { $lte: this.weightLifted },
-//     createdAt: { $gte: this.createdAt }
-//   }
-//
-//   // await GoalModel.updateMany(query, {
-//   //   isCompleted: true,
-//   //   percentageCompleted: 100
-//   // })
-//   //
-//   // await GoalModel.updateMany(query2, {
-//   //   isCompleted: true,
-//   //   percentageCompleted: 100
-//   // })
-//   console.log('Goal Model', GoalModel);
-//
-// })
 
 LiftRecordSchema.statics.findPersonalBest = function(exercise, reps) {
   return this.find({'exercise.name': exercise, reps })

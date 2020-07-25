@@ -5,11 +5,22 @@ const ExerciseSchema = new Schema({
   name: {
     type: String, required: true,
   },
-  category: {
+  modality: {
     type: String,
-    enum: ['barbell'],
-    required: true,
-    default: 'barbell'
+    enum: ['Free Weights', 'Cables', 'Machine'],
+  },
+  level: {
+    type: String,
+    enum: ['Beginner', 'Advanced', 'Intermediate'],
+    default: 'Beginner'
+  },
+  body: {
+    type: String,
+    enum: ['Upper Body', 'Lower Body', 'Core'],
+  },
+  pushPull: {
+    type: String,
+    enum: ['Push', 'Pull'],
   },
 });
 
