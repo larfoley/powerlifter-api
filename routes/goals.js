@@ -10,10 +10,11 @@ router.get('/', requestQuery({
     'exercise',
     'reps',
     'weight',
-    'after'
+    'after',
   ]
 }), async (req, res, next) => {
   const query = req.requestQuery;
+  const limit = req.query.limit || 0;
 
   if (query.exercise) {
     query['exercise.name'] = query.exercise;
@@ -21,12 +22,11 @@ router.get('/', requestQuery({
   }
 
   if (query.after) {
-    console.log('after', query.after);
     query['date'] = {"$gte": query.after }
   }
 
   try {
-    const goals = await GoalModel.find(query);
+    const goals = await GoalModel.find(query).limit(limit);
 
     res.status(200).json({ goals })
 
