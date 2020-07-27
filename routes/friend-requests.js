@@ -34,6 +34,7 @@ router.post('/', async (req, res, next) => {
     const friendRequest = await UserModel.requestFriend(req.user, req.body.friendRequest.friend);
     const friend = await UserModel.findById(friendId);
     const { added, status, _id } = friendRequest.friender;
+    const currentUser = await UserModel.findById(req.user.id)
 
     const response = {
       friendRequest: {
@@ -55,7 +56,17 @@ router.post('/', async (req, res, next) => {
 
     await notification.save();
 
-    res.io.emit(`notification/${friendId}`, notification);
+    const fr =  {
+      friendRequest: {
+        ...friendRequest.friend,
+        friend: currentUser,
+      }
+    }
+
+    delete fr.friendRequest.data;
+
+    res.io.emit(`notification/${friendId}`, { notification });
+    res.io.emit(`friend-request-recieved/${friendId}`, fr);
 
     res.status(200).json(response);
 
@@ -71,6 +82,7 @@ router.put('/:friend_id', async (req, res, next) => {
     const friend = await UserModel.findById(req.params.friend_id);
     const friendRequest = await UserModel.requestFriend(req.user, friend);
     const { _id, added, status } = friendRequest.friender;
+    const currentUser = await UserModel.findById(req.user.id)
 
     const response = {
       friendRequest: {
@@ -80,6 +92,15 @@ router.put('/:friend_id', async (req, res, next) => {
         friend
       }
     }
+
+    const fr =  {
+      friendRequest: {
+        ...friendRequest.friend,
+        friend: currentUser,
+      }
+    }
+
+    res.io.emit(`friend-request-accepted/${req.params.friend_id}`, fr);
 
     res.status(200).json(response);
 

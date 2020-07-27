@@ -29,6 +29,7 @@ router.get('/', async (req, res, next) => {
     let users = await UserModel.find(query)
       .select('-password')
       .lean()
+      .populate('workoutHistory');
 
     for (const user of users) {
       UserModel.addFriendshipMetaData(currentUserFriends, user);

@@ -70,7 +70,6 @@ router.put('/:id', async (req, res, next) => {
     const reps = liftRecord.reps;
 
     await LiftRecordModel.updatePersonalBests(exercise, reps);
-    await GoalModel.findOne({ 'exercise.name': exercise, reps});
 
     res.status(200).json({ liftRecord })
 

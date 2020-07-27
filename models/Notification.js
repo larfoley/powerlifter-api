@@ -6,6 +6,10 @@ module.exports = mongoose.model('Notification', new Schema({
   for: {
     type: Schema.Types.ObjectId, required: true,
   },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
   from: {
     type: String, required: true,
   },

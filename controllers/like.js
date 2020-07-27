@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 module.exports = {
 
   async createLike(req, res, next) {
-    const like = new LikeModel(req.body.like);
+    const like = new LikeModel(req.body.like).populate('user');
 
     try {
       const existingLike = await LikeModel.findOne(req.body.like);
@@ -19,7 +19,7 @@ module.exports = {
 
       await like.save();
 
-      const post = await PostModel.findById(like.post);
+      const post = await PostModel.findById(like.post).populate('author');
 
       post.likesCount += 1;
       post.likes.push(like);
@@ -36,6 +36,7 @@ module.exports = {
         const notification = new NotificationModel({
           for: [postAuthor._id],
           from: req.user.username,
+          by: req.user._id,
           text: `liked a post`,
           link: {
             route: 'posts.post',
@@ -45,7 +46,7 @@ module.exports = {
 
         await notification.save();
 
-        res.io.emit(`notification/${postAuthor._id}`, notification);
+        res.io.emit(`notification/${postAuthor._id}`, { notification });
       }
 
       res.status(200).json({ like })

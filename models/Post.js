@@ -2,15 +2,6 @@ const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
-const authorSchema = new Schema({
-  username: {
-    type: String, required: true,
-  },
-  email: {
-    type: String, required: true,
-  },
-})
-
 const fileSchema = new Schema({
   mediaType: {
     type: String, required: true,
@@ -44,7 +35,8 @@ const postSchema = new Schema({
     })
   },
   author: {
-    type: authorSchema
+    type: Schema.Types.ObjectId,
+    ref: 'User'
   },
   actionText: {
     type: String,

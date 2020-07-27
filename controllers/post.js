@@ -19,7 +19,7 @@ module.exports = {
 
   async updatePost(req, res, next) {
       try {
-        const post = await PostModel.findByIdAndUpdate(req.params.id).lean();
+        const post = await PostModel.findByIdAndUpdate(req.params.id).populate('author').lean();
 
         await formatPostResponse(post, req.user);
 
@@ -45,17 +45,19 @@ module.exports = {
           text: `shared a post`,
           link: {
             route: 'posts.post',
-            model: post.id
+            model: post._id
           }
         });
 
         await notification.save();
 
-        res.io.emit(`notification/${friend._id}`, notification);
+        res.io.emit(`notification/${friend._id}`, { notification });
         res.io.emit(`post/${friend._id}`, post);
       }
 
-      return res.json({ post });
+      const response = await PostModel.find({ _id: post._id }).populate('author');
+
+      return res.json({ post: response });
 
     } catch(error) {
       next(error);
@@ -88,14 +90,17 @@ module.exports = {
     try {
       const friends = await UserModel.getAcceptedFriends(req.user);
 
-      const postAuthors = friends.map(friend => friend.friend.username);
+      const postAuthors = friends.map(friend => friend.friend._id);
 
-      postAuthors.push(req.user.username)
+      postAuthors.push(req.user._id)
+
+      const test = await PostModel.find({author: req.user._id})
 
       const posts = await PostModel
-        .where("author.username")
+        .where("author")
         .in(postAuthors)
         .sort('-createdAt')
+        .populate('author')
         .lean()
 
       for (post of posts) {

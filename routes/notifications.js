@@ -6,7 +6,7 @@ router.get('/', async (req, res, next) => {
   try {
     const notifications = await NotificationModel.find({
       for: req.user._id
-    });
+    }).populate('user').sort('-createdAt');
 
     res.status(200).json({ notifications })
 
