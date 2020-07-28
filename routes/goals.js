@@ -72,6 +72,7 @@ router.put('/:id', async (req, res, next) => {
   try {
     if (update.isCompleted) {
       update.percentageCompleted = 100;
+      update.completedOn = new Date()
     }
 
     const updatedGoal = await GoalModel.findByIdAndUpdate(id, update, { new: true });
