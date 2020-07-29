@@ -6,6 +6,9 @@
     "start": "nodemon ./bin/www",
     "test": "mocha"
   },
+  "engines": {
+    "node": "12.18.3"
+  },
   "dependencies": {
     "aws-sdk": "^2.682.0",
     "bcryptjs": "^2.4.3",
