@@ -31,6 +31,9 @@ mongoose.Promise = global.Promise;
 mongoose.set('useFindAndModify', false);
 
 const app = express();
+
+app.use(cors());
+
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const jwtAuth = require('socketio-jwt-auth');
@@ -55,7 +58,6 @@ app.use(logger('dev'));
 app.use(express.json({ limit: '50mb' }));
 app.use(queryParser());
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
-app.use(cors());
 
 io.use(jwtAuth.authenticate({
   secret: 'theowlsarenotwhattheyseem',
