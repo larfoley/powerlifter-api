@@ -70,8 +70,11 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-userSchema.methods.verifyPassword = function(newPassword) {
-    return bcrypt.compareSync(newPassword.trim(), this.password.trim());
+userSchema.methods.verifyPassword = function(password) {
+  const currentPassword = this.password ? this.password.trim() : this.password;
+  const newPassword = password ? password.trim() : password;
+  
+  return bcrypt.compareSync(newPassword, currentPassword);
 }
 
 userSchema.statics.addFriendshipMetaData = function(currentUserFriends, user) {

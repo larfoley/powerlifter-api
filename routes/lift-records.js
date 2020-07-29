@@ -13,7 +13,7 @@ router.get('/', async (req, res, next) => {
   }
 
   try {
-    const liftRecords = await LiftRecordModel.find(query).limit(parseInt(limit));
+    const liftRecords = await LiftRecordModel.find(query).limit(parseInt(limit)).sort('-createdAt');
 
     res.status(200).json({ liftRecords })
 

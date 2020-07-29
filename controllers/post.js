@@ -44,7 +44,7 @@ module.exports = {
           from: req.user.username,
           text: `shared a post`,
           link: {
-            route: 'posts.post',
+            route: 'my-network.feed.post',
             model: post._id
           }
         });
@@ -55,7 +55,13 @@ module.exports = {
         res.io.emit(`post/${friend._id}`, post);
       }
 
-      const response = await PostModel.find({ _id: post._id }).populate('author');
+      const response = await PostModel.find({ _id: post._id }).populate({
+        path: 'author',
+        populate: {
+          path: 'workoutHistory'
+        }
+      })
+      .populate('workoutHistory');
 
       return res.json({ post: response });
 
@@ -100,7 +106,13 @@ module.exports = {
         .where("author")
         .in(postAuthors)
         .sort('-createdAt')
-        .populate('author')
+        .populate({
+          path: 'author',
+          populate: {
+            path: 'workoutHistory'
+          }
+        })
+        .populate('workoutHistory')
         .lean()
 
       for (post of posts) {
