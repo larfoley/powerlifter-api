@@ -3,21 +3,15 @@ const Service = require('./Service');
 const User = require('../models/User');
 const createError = require('http-errors')
 
+const { SESSION_SECRET } = process.env;
+
 module.exports = class UserService extends Service {
   constructor() {
     super(User);
   }
 
-  async findAll(query) {
-    const users = await User.find(query).select('-password');
-
-    // for (const user of users) {
-    //   user.friends = await this.getAcceptedFriends(user);
-    //   user.pendingFriends = await this.getPendingFriends(user);
-    //   user.requestedFriends = await this.getRequestedFriends(user);
-    // }
-
-    return users;
+  findAll(query) {
+    return User.find(query).select('-password');
   }
 
   async search(searchTerm) {
@@ -26,11 +20,11 @@ module.exports = class UserService extends Service {
 
   signToken(user) {
     return JWT.sign({
-      iss: 'powerlifting-app', // Optional
+      iss: 'powerlifting-app',
       sub: user._id,
-      iat: new Date().getTime(), // Optional
-      exp: new Date().setDate(new Date().getDate() + 1), // Optional
-    }, 'theowlsarenotwhattheyseem'); // Secret: should generate long randon string
+      iat: new Date().getTime(),
+      exp: new Date().setDate(new Date().getDate() + 1),
+    }, SESSION_SECRET); // Secret: should generate long randon string
   }
 
   getAcceptedFriends(user) {
