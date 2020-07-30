@@ -27,6 +27,7 @@ const currentProgramRouter = require('./routes/current-program');
 const workoutProgramsRouter = require('./routes/workout-programs');
 const workoutProgramTemplatesRouter = require('./routes/workout-program-templates');
 
+
 mongoose.Promise = global.Promise;
 mongoose.set('useFindAndModify', false);
 
@@ -39,7 +40,7 @@ const io = require('socket.io')(server);
 const jwtAuth = require('socketio-jwt-auth');
 
 const connection = mongoose.connection;
-const protected = passport.authenticate('jwt', { session: false });
+const protectedRoute = passport.authenticate('jwt', { session: false });
 
 try {
   mongoose.connect(process.env.DB, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -86,20 +87,20 @@ app.use(function(req, res, next) {
 
 //Route handlers
 app.use(authRouter);
-app.use('/users', protected, usersRouter);
-app.use('/goals', protected, goalsRouter);
-app.use('/friendRequests', protected, friendRequestsRouter);
-app.use('/liftRecords', protected, liftRecordsRouter);
-app.use('/exercises', protected, exercisesRouter);
-app.use('/notifications',protected, notificationsRouter);
-app.use('/posts', protected, postsRouter);
-app.use('/comments', protected, commentsRouter);
-app.use('/friends', protected, friendsRouter);
-app.use('/likes', protected, likesRouter);
-app.use('/upload', protected, uploadRouter);
-app.use('/currentPrograms', protected, currentProgramRouter);
-app.use('/workoutPrograms', protected, workoutProgramsRouter);
-app.use('/workoutProgramTemplates', protected, workoutProgramTemplatesRouter);
+app.use('/users', protectedRoute, usersRouter);
+app.use('/goals', protectedRoute, goalsRouter);
+app.use('/friendRequests', protectedRoute, friendRequestsRouter);
+app.use('/liftRecords', protectedRoute, liftRecordsRouter);
+app.use('/exercises', protectedRoute, exercisesRouter);
+app.use('/notifications',protectedRoute, notificationsRouter);
+app.use('/posts', protectedRoute, postsRouter);
+app.use('/comments', protectedRoute, commentsRouter);
+app.use('/friends', protectedRoute, friendsRouter);
+app.use('/likes', protectedRoute, likesRouter);
+app.use('/upload', protectedRoute, uploadRouter);
+app.use('/currentPrograms', protectedRoute, currentProgramRouter);
+app.use('/workoutPrograms', protectedRoute, workoutProgramsRouter);
+app.use('/workoutProgramTemplates', protectedRoute, workoutProgramTemplatesRouter);
 
 // Error handlers
 app.use(function(req, res, next) {

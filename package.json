@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "mocha"
+    "test": "jest --detectOpenHandles test/*",
+    "mocha": "mocha test/*",
+    "test:watch": "npm run test -- --watch"
   },
   "engines": {
     "node": "12.18.3"

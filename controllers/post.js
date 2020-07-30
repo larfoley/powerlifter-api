@@ -100,8 +100,6 @@ module.exports = {
 
       postAuthors.push(req.user._id)
 
-      const test = await PostModel.find({author: req.user._id})
-
       const posts = await PostModel
         .where("author")
         .in(postAuthors)
@@ -120,6 +118,28 @@ module.exports = {
       }
 
       res.json({ posts });
+
+    } catch(error) {
+      next(error);
+    }
+  },
+
+  async getPost(req, res, next) {
+    try {
+      const post = await PostModel
+        .findById(req.params.id)
+        .populate({
+          path: 'author',
+          populate: {
+            path: 'workoutHistory'
+          }
+        })
+        .populate('workoutHistory')
+        .lean()
+
+        await formatPostResponse(post, req.user);
+
+        res.json({ post });
 
     } catch(error) {
       next(error);
