@@ -93,6 +93,9 @@ module.exports = {
   },
 
   async getPosts(req, res, next) {
+    const limit = req.query.limit || 5;
+    const offset = req.query.offset || 0;
+
     try {
       const friends = await UserModel.getAcceptedFriends(req.user);
 
@@ -103,6 +106,8 @@ module.exports = {
       const posts = await PostModel
         .where("author")
         .in(postAuthors)
+        .skip(offset)
+        .limit(limit)
         .sort('-createdAt')
         .populate({
           path: 'author',
@@ -117,7 +122,9 @@ module.exports = {
         await formatPostResponse(post, req.user);
       }
 
-      res.json({ posts });
+      const postCount = await PostModel.countDocuments();
+
+      res.json({ posts, meta: { postCount } });
 
     } catch(error) {
       next(error);
