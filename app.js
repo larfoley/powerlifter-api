@@ -12,11 +12,9 @@ const User = require('./models/User');
 
 // Routes
 const usersRouter = require('./routes/users');
-const goalsRouter = require('./routes/goals');
 const authRouter = require('./routes/auth');
 const friendRequestsRouter = require('./routes/friend-requests');
 const liftRecordsRouter = require('./routes/lift-records');
-const exercisesRouter = require('./routes/exercises');
 const notificationsRouter = require('./routes/notifications');
 const postsRouter = require('./routes/posts');
 const commentsRouter = require('./routes/comments');
@@ -27,11 +25,16 @@ const currentProgramRouter = require('./routes/current-program');
 const workoutProgramsRouter = require('./routes/workout-programs');
 const workoutProgramTemplatesRouter = require('./routes/workout-program-templates');
 
+const {
+  goalsRouter,
+  exercisesRouter
+} = require('./routers');
 
 mongoose.Promise = global.Promise;
 mongoose.set('useFindAndModify', false);
 
 const app = express();
+
 
 app.use(cors());
 
@@ -50,7 +53,7 @@ try {
 
 connection.on('error', console.error.bind(console, 'Error connecting to the database'));
 connection.once('open', () => {
-  console.log('Connected to database');
+  // console.log('Connected to database');
 });
 
 // Middleware

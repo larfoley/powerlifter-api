@@ -73,7 +73,7 @@ userSchema.pre('save', async function(next) {
 userSchema.methods.verifyPassword = function(password) {
   const currentPassword = this.password ? this.password.trim() : this.password;
   const newPassword = password ? password.trim() : password;
-  
+
   return bcrypt.compareSync(newPassword, currentPassword);
 }
 

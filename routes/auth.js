@@ -64,13 +64,13 @@ router.post('/sign-out', async function(req, res, next) {
 
     friends = friends.filter(friend => friend.friend.isOnline);
 
-    req.logout();
-
     for (var friend of friends) {
       res.io.emit(`friends/${friend._id}`, {
         friend: user
       });
     }
+
+    req.logout();
 
     res.status(200).json({
       user

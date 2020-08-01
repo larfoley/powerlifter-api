@@ -4,9 +4,8 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "jest --detectOpenHandles test/*",
-    "mocha": "mocha test/*",
-    "test:watch": "npm run test -- --watch"
+    "test": "jest --detectOpenHandles ",
+    "mocha": "mocha test/unit/*"
   },
   "engines": {
     "node": "12.18.3"
@@ -45,7 +44,9 @@
   },
   "devDependencies": {
     "@babel/register": "^7.6.2",
-    "@shelf/jest-mongodb": "^1.1.1",
+    "@shelf/jest-mongodb": "^1.2.1",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
     "chai": "^4.2.0",
     "eslint": "^6.4.0",
     "eslint-config-airbnb-base": "^14.0.0",
@@ -56,9 +57,11 @@
     "mongo-seed": "^0.6.0",
     "mongodb-memory-server": "^5.2.5",
     "nock": "^11.3.5",
+    "node-mocks-http": "^1.8.1",
     "nodemon": "^1.19.4",
     "sinon": "^7.5.0",
     "sinon-express-mock": "^2.2.1",
+    "superagent": "^5.3.1",
     "supertest": "^4.0.2"
   },
   "mdSeed": {
