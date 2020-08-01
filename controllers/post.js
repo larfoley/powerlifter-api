@@ -44,7 +44,7 @@ module.exports = {
           from: req.user.username,
           text: `shared a post`,
           link: {
-            route: 'my-network.feed.post',
+            route: 'posts.post',
             model: post._id
           }
         });

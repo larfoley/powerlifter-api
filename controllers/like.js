@@ -39,7 +39,7 @@ module.exports = {
           by: req.user._id,
           text: `liked a post`,
           link: {
-            route: 'my-newtork.feed.post',
+            route: 'posts.post',
             model: post.id
           }
         })

@@ -15,7 +15,6 @@ router.get('/', async (req, res, next) => {
   const friendShipRequested = req.query.friendShipRequested;
 
   try {
-    // Get all users, excluding the current user
     const currentUserFriends = await UserModel.getFriends(req.user);
 
     const query = {
@@ -58,12 +57,22 @@ router.get('/:id', async (req, res, next) => {
 });
 
 router.put('/:id', async (req, res, next) => {
-  const update = req.body.user;
+  const update = {};
+
+  if (req.body.user.profilePic) {
+    update.profilePic = req.body.user.profilePic
+  }
+
+  if (req.body.user.coverPhoto) {
+    update.coverPhoto = req.body.user.coverPhoto
+  }
 
   try {
     const user = await UserModel.findById(req.user.id).populate('workoutHistory');
     const oldProfilePic = user.profilePic;
-    const newProfilePic = update.profilePic;
+    const newProfilePic = req.body.user.profilePic;
+    const oldCoverPhoto = user.coverPhoto;
+    const newCoverPhoto = req.body.user.coverPhoto;
 
     if (oldProfilePic != newProfilePic && newProfilePic.trim() != "") {
 
@@ -71,7 +80,16 @@ router.put('/:id', async (req, res, next) => {
         Key: oldProfilePic
       });
 
-      await UserModel.findByIdAndUpdate(req.params.id, req.body.user);
+      await UserModel.findByIdAndUpdate(req.params.id, update);
+    }
+
+    if (oldCoverPhoto != newCoverPhoto && newCoverPhoto.trim() != "") {
+
+      const data = await s3.deleteObject({
+        Key: oldCoverPhoto
+      });
+
+      await UserModel.findByIdAndUpdate(req.params.id, update);
     }
 
     const updatedUser = await UserModel.findById(req.user.id).populate('workoutHistory')
@@ -107,6 +125,5 @@ router.post('/:id/request-friend', async (req, res, next) => {
     next(error);
   }
 });
-
 
 module.exports = router;

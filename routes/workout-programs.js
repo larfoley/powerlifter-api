@@ -2,44 +2,14 @@ const router = require('express').Router();
 const WorkoutProgramModel = require('../models/WorkoutProgram');
 const UserModel = require('../models/User');
 
-
-const requestQuery = (options = { allowedQueryParams: [] }) => {
-  const { allowedQueryParams } = options;
-
-  return function(req, res, next) {
-    const query = {};
-
-    try {
-      for (var key in req.query) {
-        if (allowedQueryParams.includes(key)) {
-          const queryValue = req.query[key];
-
-          if (typeof queryValue === "array" && queryValue.length > 0) {
-            query._id = { $in: queryValue };
-          }
-
-          query[key] = req.query[key];
-        }
-      }
-
-      req.reqQuery = query;
-
-      return next();
-
-    } catch (e) {
-        next(e);
-    }
-  }
-}
-
 router.get('/', async (req, res, next) => {
   const workoutProgramIds = req.query.ids ? req.query.ids : [];
-  const query = {};
+  const query = {
+    user: req.user._id
+  };
+
   const author = req.query.author;
 
-  if (author) {
-    query.author = author;
-  }
 
   if (workoutProgramIds.length > 0) {
     query._id = { $in: workoutProgramIds };

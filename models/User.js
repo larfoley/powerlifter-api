@@ -50,6 +50,10 @@ const userSchema = new Schema({
     type: String,
     default: ''
   },
+  coverPhoto: {
+    type: String,
+    default: ''
+  },
   posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
   workoutProgramTemplates: [{ type: Schema.Types.ObjectId, ref: 'WorkoutProgramTemplate' }],
   workoutHistory: [{ type: Schema.Types.ObjectId, ref: 'WorkoutProgram' }],
