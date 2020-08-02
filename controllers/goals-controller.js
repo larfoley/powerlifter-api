@@ -16,7 +16,7 @@ class GoalsController {
     }
 
     try {
-      const goals = await GoalModel.find(query);
+      const goals = await GoalModel.find(query).limit(limit);
 
       res.json({ goals })
 
@@ -34,6 +34,7 @@ class GoalsController {
       res.json({ goal })
 
     } catch(error) {
+      console.log({ error });
       next(error)
     }
   };

@@ -6,7 +6,12 @@ const { newGoal, goals } = require('../mocks/goals');
 jest.mock('../../models/Goal');
 
 GoalModel.prototype.save = jest.fn().mockResolvedValue(newGoal);
-GoalModel.find = jest.fn().mockResolvedValue(goals);
+GoalModel.find = jest.fn().mockImplementation(() => {
+  return {
+    limit: () => Promise.resolve(goals)
+    }
+  }
+);
 
 let req, res, next;
 

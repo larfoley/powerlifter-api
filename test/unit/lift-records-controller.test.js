@@ -18,8 +18,6 @@ LiftRecordModel.find = jest.fn().mockImplementation(() => {
   }
 });
 
-
-
 const post = {
   media: { url: '/foo'}
 }

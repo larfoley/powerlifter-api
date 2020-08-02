@@ -2,19 +2,20 @@ require('dotenv').config();
 require('./passport')
 const express = require('express');
 const logger = require('morgan');
-const mongoose = require('mongoose');
 const helmet = require('helmet');
 const passport = require('passport');
 const cors = require('cors');
 const createError = require('http-errors');
 const queryParser = require('express-query-int');
+const http = require('http')
 const User = require('./models/User');
+const database = require('./database');
 
 // Routes
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const friendRequestsRouter = require('./routes/friend-requests');
-const liftRecordsRouter = require('./routes/lift-records');
+// const liftRecordsRouter = require('./routes/lift-records');
 const notificationsRouter = require('./routes/notifications');
 const postsRouter = require('./routes/posts');
 const commentsRouter = require('./routes/comments');
@@ -27,35 +28,20 @@ const workoutProgramTemplatesRouter = require('./routes/workout-program-template
 
 const {
   goalsRouter,
-  exercisesRouter
+  exercisesRouter,
+  liftRecordsRouter
 } = require('./routers');
 
-mongoose.Promise = global.Promise;
-mongoose.set('useFindAndModify', false);
-
 const app = express();
-
-
-app.use(cors());
-
-const server = require('http').Server(app);
+const server = http.Server(app);
 const io = require('socket.io')(server);
 const jwtAuth = require('socketio-jwt-auth');
 
-const connection = mongoose.connection;
+database.connect(app.get('env'));
+
+app.use(cors());
+
 const protectedRoute = passport.authenticate('jwt', { session: false });
-
-try {
-  mongoose.connect(process.env.DB, { useNewUrlParser: true, useUnifiedTopology: true });
-} catch (e) {
-    console.log(e);
-}
-
-connection.on('error', console.error.bind(console, 'Error connecting to the database'));
-connection.once('open', () => {
-  // console.log('Connected to database');
-});
-
 // Middleware
 app.use(helmet());
 app.use(logger('dev'));
@@ -150,4 +136,4 @@ app.use(function(error, req, res, next) {
   res.status(status).json(response);
 });
 
-module.exports = { app: app, server: server };
+module.exports = { app, server };

@@ -12,8 +12,9 @@ class LiftRecordsController {
       findQuery['exercise.name'] = exercise;
     }
 
+
     try {
-      const liftRecords = await LiftRecordModel.find(findQuery)
+      const liftRecords = await LiftRecordModel.find()
         .limit(parseInt(limit))
         .sort('-createdAt');
 
@@ -76,9 +77,12 @@ class LiftRecordsController {
 
   async createLiftRecord(req, res, next) {
     try {
-      const liftRecord = await new LiftRecordModel(req.body.liftRecord).save();
-
-      // await LiftRecordModel.updatePersonalBests(liftRecord.exercise.name, liftRecord.reps);
+      const newLiftRecord = await new LiftRecordModel({
+        user: req.user._id,
+        ...req.body.liftRecord
+      })
+      const liftRecord = await newLiftRecord.save();
+      await LiftRecordModel.updatePersonalBests(req.body.liftRecord.exercise.name, liftRecord.reps);
 
       res.status(201).json({ liftRecord })
 

@@ -6,6 +6,10 @@ const LiftRecordSchema = new Schema({
   exercise: {
     type: ExerciseSchema, required: true,
   },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
   weightLifted: {
     type: Number, required: true,
   },
