@@ -1,8 +1,8 @@
 const newGoal = {
-  _id: '123',
-  weight: '100',
+  weight: 100,
   reps: 1,
-  dueDate: "2020-08-01T09:57:37.138Z"
+  dueDate: "2020-08-01T09:57:37.138Z",
+  exercise: { name: 'Deadlift' }
 }
 
 const goals = [

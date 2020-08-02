@@ -1,7 +1,3 @@
-const supertest = require('supertest');
-const express = require('express');
-// const app = require('../../app').app;
-// const request = supertest(app);
 const GoalModel = require('../../models/Goal');
 const goalsController = require('../../controllers/goals-controller');
 const httpMocks = require('node-mocks-http');
