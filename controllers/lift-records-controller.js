@@ -3,18 +3,19 @@ const s3 = require('../services/s3');
 
 class LiftRecordsController {
 
-  async getLiftRecords(req, res) {
-    const { exercise, limit } = req.query;
-    const findQuery = {
-      _id: req.user._id
-    };
+  async getLiftRecords(req, res, next) {
+    const { exercise } = req.query;
+    const limit = req.query.limit || 0
+    const findQuery = { _id: req.user._id };
 
     if (exercise) {
       findQuery['exercise.name'] = exercise;
     }
 
     try {
-      const liftRecords = await LiftRecordModel.find(findQuery).limit(parseInt(limit)).sort('-createdAt');
+      const liftRecords = await LiftRecordModel.find(findQuery)
+        .limit(parseInt(limit))
+        .sort('-createdAt');
 
       res.status(200).json({ liftRecords })
 
@@ -77,9 +78,9 @@ class LiftRecordsController {
     try {
       const liftRecord = await new LiftRecordModel(req.body.liftRecord).save();
 
-      await LiftRecordModel.updatePersonalBests(liftRecord.exercise.name, liftRecord.reps);
+      // await LiftRecordModel.updatePersonalBests(liftRecord.exercise.name, liftRecord.reps);
 
-      res.status(200).json({ liftRecord })
+      res.status(201).json({ liftRecord })
 
     } catch(error) {
       next(error);

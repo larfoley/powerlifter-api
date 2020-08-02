@@ -4,8 +4,21 @@ const liftRecordsController = require('../../controllers/lift-records-controller
 const httpMocks = require('node-mocks-http');
 const { newLiftRecord, liftRecords } = require('../mocks/lift-records');
 
+jest.mock('../../models/LiftRecord');
+jest.mock('../../services/s3');
+
 LiftRecordModel.prototype.save = jest.fn().mockResolvedValue(newLiftRecord);
-LiftRecordModel.find = jest.fn().mockResolvedValue(liftRecords);
+LiftRecordModel.find = jest.fn().mockImplementation(() => {
+  return {
+    limit: () => {
+      return {
+        sort: () => Promise.resolve(liftRecords)
+      }
+    }
+  }
+});
+
+
 
 const post = {
   media: { url: '/foo'}
@@ -91,13 +104,13 @@ describe("liftRecordsController.getLiftRecord()", () => {
   })
 })
 
-describe("liftRecordsController.updateGoal()", () => {
+describe("liftRecordsController.updateLiftRecord()", () => {
   it('should return a 200 response code', async () => {
     LiftRecordModel.findByIdAndUpdate = jest.fn().mockResolvedValue(newLiftRecord);
     req.params.id = newLiftRecord.id;
     req.body.liftRecord = newLiftRecord;
 
-    await liftRecordsController.updateGoal(req, res, next);
+    await liftRecordsController.updateLiftRecord(req, res, next);
 
     expect(res.statusCode).toBe(200);
     expect(res._isEndCalled()).toBeTruthy();
@@ -107,7 +120,7 @@ describe("liftRecordsController.updateGoal()", () => {
     req.params.id = newLiftRecord.id;
     req.body.liftRecord = newLiftRecord;
 
-    await liftRecordsController.updateGoal(req, res, next);
+    await liftRecordsController.updateLiftRecord(req, res, next);
 
     expect(res._getJSONData()).toStrictEqual({
       liftRecord: newLiftRecord
@@ -115,13 +128,13 @@ describe("liftRecordsController.updateGoal()", () => {
   })
 })
 
-describe("liftRecordsController.deleteGoal()", () => {
+describe("liftRecordsController.deleteLiftRecord()", () => {
   it('should return a 200 response code', async () => {
     LiftRecordModel.findOneAndDelete = jest.fn().mockResolvedValue({});
 
     req.params.id = newLiftRecord.id;
 
-    await liftRecordsController.deleteGoal(req, res, next);
+    await liftRecordsController.deleteLiftRecord(req, res, next);
 
     expect(res.statusCode).toBe(200);
     expect(res._isEndCalled()).toBeTruthy();
@@ -130,7 +143,7 @@ describe("liftRecordsController.deleteGoal()", () => {
     LiftRecordModel.findOneAndDelete = jest.fn().mockResolvedValue({});
     req.params.id = newLiftRecord.id;
 
-    await liftRecordsController.deleteGoal(req, res, next);
+    await liftRecordsController.deleteLiftRecord(req, res, next);
 
     expect(res._getJSONData()).toEqual({});
   })

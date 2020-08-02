@@ -3,6 +3,8 @@ const goalsController = require('../../controllers/goals-controller');
 const httpMocks = require('node-mocks-http');
 const { newGoal, goals } = require('../mocks/goals');
 
+jest.mock('../../models/Goal');
+
 GoalModel.prototype.save = jest.fn().mockResolvedValue(newGoal);
 GoalModel.find = jest.fn().mockResolvedValue(goals);
 
