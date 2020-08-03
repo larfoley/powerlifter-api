@@ -6,7 +6,7 @@ class LiftRecordsController {
   async getLiftRecords(req, res, next) {
     const { exercise } = req.query;
     const limit = req.query.limit || 0
-    const findQuery = { _id: req.user._id };
+    const findQuery = {  };
 
     if (exercise) {
       findQuery['exercise.name'] = exercise;
@@ -16,6 +16,7 @@ class LiftRecordsController {
       const liftRecords = await LiftRecordModel.find(findQuery)
         .limit(parseInt(limit))
         .sort('-createdAt');
+
 
       res.status(200).json({ liftRecords })
 
