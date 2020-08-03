@@ -26,5 +26,3 @@ fs.writeFile('./seeds/exercises.js', fileData, function (err) {
   if (err) throw err;
   console.log('Saved!');
 });
-
-console.log(exercises);

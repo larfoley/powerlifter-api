@@ -7,16 +7,24 @@ const createError = require('http-errors');
 const userService = new UserService();
 
 router.post('/sign-up', async (req, res, next) => {
+  const { username, email } = req.body.user;
+
   try {
-    const existingUser = await userService.find(req.body.user);
+    const existingUser = await UserModel.findOne({
+      $or: [ { username }, { email } ]
+    });
+
+    console.log({ existingUser });
 
     if (existingUser) {
       return next(createError(409, "User already exists"));
     }
 
-    const newUser = await userService.create(req.body.user);
+    const user = new UserModel(req.body.user)
 
-    res.status(200).json({ user: newUser });
+    await user.save();
+
+    res.status(200).json({ user });
 
   } catch (error) {
     next(error);

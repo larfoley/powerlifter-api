@@ -15,7 +15,6 @@ const database = require('./database');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
 const friendRequestsRouter = require('./routes/friend-requests');
-// const liftRecordsRouter = require('./routes/lift-records');
 const notificationsRouter = require('./routes/notifications');
 const postsRouter = require('./routes/posts');
 const commentsRouter = require('./routes/comments');
@@ -120,7 +119,7 @@ app.use(function(error, req, res, next) {
       })
     }
 
-  } else if (status == 422) {
+  } else {
     // Handle validation errors that are not asociated with any specific attribute
     response.errors.push({
       status,

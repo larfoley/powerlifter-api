@@ -51,6 +51,7 @@
     "eslint": "^6.4.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.18.2",
+    "got": "^11.5.1",
     "jest": "^24.9.0",
     "jsdoc": "^3.6.4",
     "mocha": "^6.2.0",
