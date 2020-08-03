@@ -12,8 +12,8 @@ router.get('/', async (req, res, next) => {
   }
 
   try {
-    const exercises = await ExerciseModel.find({});
-    console.log(exercises.length);
+    const exercises = await ExerciseModel.find(query);
+
     res.status(200).json({ exercises });
 
   } catch(error) {
