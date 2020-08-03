@@ -1,5 +1,5 @@
+// const { MongoMemoryServer } = require('mongodb-memory-server');
 require('dotenv').config();
-const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
@@ -13,8 +13,8 @@ async function connect(environment) {
     databaseURI = process.env.DB;
 
   } else {
-    mongod = new MongoMemoryServer();
-    databaseURI = await mongod.getUri();
+    // mongod = new MongoMemoryServer();
+    // databaseURI = await mongod.getUri();
   }
 
   databaseURI = process.env.DB;
