@@ -12,9 +12,8 @@ class LiftRecordsController {
       findQuery['exercise.name'] = exercise;
     }
 
-
     try {
-      const liftRecords = await LiftRecordModel.find()
+      const liftRecords = await LiftRecordModel.find(findQuery)
         .limit(parseInt(limit))
         .sort('-createdAt');
 
