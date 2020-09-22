@@ -118,6 +118,8 @@ module.exports = {
         .populate('workoutHistory')
         .lean()
 
+        console.log({ posts });
+
       for (post of posts) {
         await formatPostResponse(post, req.user);
       }

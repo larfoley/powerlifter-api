@@ -14,8 +14,6 @@ router.post('/sign-up', async (req, res, next) => {
       $or: [ { username }, { email } ]
     });
 
-    console.log({ existingUser });
-
     if (existingUser) {
       return next(createError(409, "User already exists"));
     }
@@ -36,8 +34,7 @@ router.post('/token',
   async function(req, res, next) {
     const token = new UserService().signToken(req.user);
     const user = await UserModel.findById(req.user._id);
-
-
+    
     user.isOnline = true;
 
     await user.save()
