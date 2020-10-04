@@ -5,9 +5,7 @@ const s3 = require('../services/s3')
 
 router.get('/me', async (req, res) => {
   const user = await UserModel.findById(req.user.id).populate('workoutHistory');
-
-  const users = await UserModel.find({})
-
+  
   res.status(200).json({ user });
 });
 
